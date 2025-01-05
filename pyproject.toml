@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "travel-agent"
+version = "0.1.0"
+description = ""
+authors = ["zjandali <yzjandali@berkeley.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+google-cloud-aiplatform = ">=1.52"
+vertexai = "^1.71.1"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
