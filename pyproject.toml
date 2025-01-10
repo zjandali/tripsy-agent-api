@@ -10,6 +10,10 @@ python = "^3.12"
 google-cloud-aiplatform = ">=1.52"
 vertexai = "^1.71.1"
 python-dotenv = "^1.0.1"
+logfire = "^3.1.0"
+streamlit = "^1.41.1"
+langchain = "^0.3.14"
+pydantic-ai = "^0.0.18"
 
 
 [build-system]
