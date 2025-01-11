@@ -18,6 +18,8 @@ langchain-openai = "^0.3.0"
 langgraph = "^0.2.62"
 sendgrid = "^6.11.0"
 serpapi = "^0.1.5"
+fastapi = "^0.115.6"
+uvicorn = "^0.34.0"
 
 
 [build-system]
