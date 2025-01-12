@@ -1,21 +1,23 @@
 import os
 from typing import Optional
-
-# from pydantic import BaseModel, Field
-import serpapi
-from langchain.pydantic_v1 import BaseModel, Field
+from pydantic import BaseModel
+from langchain.pydantic_v1 import Field
 from langchain_core.tools import tool
+from serpapi import GoogleSearch
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class FlightsInput(BaseModel):
     departure_airport: Optional[str] = Field(description='Departure airport code (IATA)')
     arrival_airport: Optional[str] = Field(description='Arrival airport code (IATA)')
-    outbound_date: Optional[str] = Field(description='Parameter defines the outbound date. The format is YYYY-MM-DD. e.g. 2024-06-22')
-    return_date: Optional[str] = Field(description='Parameter defines the return date. The format is YYYY-MM-DD. e.g. 2024-06-28')
-    adults: Optional[int] = Field(1, description='Parameter defines the number of adults. Default to 1.')
-    children: Optional[int] = Field(0, description='Parameter defines the number of children. Default to 0.')
-    infants_in_seat: Optional[int] = Field(0, description='Parameter defines the number of infants in seat. Default to 0.')
-    infants_on_lap: Optional[int] = Field(0, description='Parameter defines the number of infants on lap. Default to 0.')
+    outbound_date: Optional[str] = Field(description='Parameter defines the outbound date. The format is YYYY-MM-DD.')
+    return_date: Optional[str] = Field(description='Parameter defines the return date. The format is YYYY-MM-DD.')
+    adults: Optional[int] = Field(default=1, description='Parameter defines the number of adults.')
+    children: Optional[int] = Field(default=0, description='Parameter defines the number of children.')
+    infants_in_seat: Optional[int] = Field(default=0, description='Parameter defines the number of infants in seat.')
+    infants_on_lap: Optional[int] = Field(default=0, description='Parameter defines the number of infants on lap.')
 
 
 class FlightsInputSchema(BaseModel):
@@ -31,26 +33,26 @@ def flights_finder(params: FlightsInput):
         dict: Flight search results.
     '''
 
-    params = {
-        'api_key': os.environ.get('SERPAPI_API_KEY'),
+    search_params = {
+        'api_key': os.getenv('SERP_API_KEY'),
         'engine': 'google_flights',
-        'hl': 'en',
-        'gl': 'us',
         'departure_id': params.departure_airport,
         'arrival_id': params.arrival_airport,
         'outbound_date': params.outbound_date,
         'return_date': params.return_date,
         'currency': 'USD',
+        'hl': 'en',
         'adults': params.adults,
-        'infants_in_seat': params.infants_in_seat,
-        'stops': '1',
-        'infants_on_lap': params.infants_on_lap,
         'children': params.children
     }
 
     try:
-        search = serpapi.search(params)
-        results = search.data['best_flights']
+        search = GoogleSearch(search_params)
+        results = search.get_dict()
+        if 'error' in results:
+            print(f"SerpAPI Error: {results['error']}")
+            return []
+        return results.get('best_flights', [])
     except Exception as e:
-        results = str(e)
-    return results
+        print(f"Exception in flights_finder: {str(e)}")
+        return str(e)
