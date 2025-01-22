@@ -16,8 +16,8 @@ class FlightSearchAgent(BaseSearchAgent):
                     end_date: date, budget: float, travelers: int = 1) -> List[dict]:
         input_data = {
             "params": {
-                "departure_airport": departure,  # Assuming input is already airport code
-                "arrival_airport": arrival,      # Assuming input is already airport code
+                "departure_airport": departure,
+                "arrival_airport": arrival,
                 "outbound_date": str(start_date),
                 "return_date": str(end_date),
                 "adults": travelers,
@@ -31,17 +31,25 @@ class FlightSearchAgent(BaseSearchAgent):
             results = self.tool(input_data)
             
             if isinstance(results, str):  # Error case
-                print(f"Search error: {results}")  # Add logging
+                print(f"Search error: {results}")
                 return {"error": results, "flights": []}
                 
-            # Filter by budget and return results
-            filtered_flights = [f for f in results if f.get('price', float('inf')) <= budget]
-            print(f"Found {len(filtered_flights)} flights within budget")  # Add logging
+            # Filter by budget and add booking URL
+            filtered_flights = []
+            for flight in results:
+                if flight.get('price', float('inf')) <= budget:
+                    # Construct Google Flights URL
+                    base_url = "https://www.google.com/travel/flights"
+                    params = f"?q=Flights%20from%20{departure}%20to%20{arrival}"
+                    flight['booking_url'] = base_url + params
+                    filtered_flights.append(flight)
+                    
+            print(f"Found {len(filtered_flights)} flights within budget")
             return {
                 "flights": filtered_flights
             }
         except Exception as e:
-            print(f"Exception in flight search: {str(e)}")  # Add logging
+            print(f"Exception in flight search: {str(e)}")
             return {"error": str(e), "flights": []}
 
 class HotelSearchAgent(BaseSearchAgent):

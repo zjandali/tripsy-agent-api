@@ -52,7 +52,17 @@ def flights_finder(params: FlightsInput):
         if 'error' in results:
             print(f"SerpAPI Error: {results['error']}")
             return []
-        return results.get('best_flights', [])
+            
+        flights = results.get('best_flights', [])
+        # Add direct booking links if available from SerpAPI response
+        for flight in flights:
+            if 'booking_link' not in flight:
+                # Construct a Google Flights search URL as fallback
+                flight['booking_link'] = (
+                    f"https://www.google.com/travel/flights?q=Flights%20"
+                    f"from%20{params.departure_airport}%20to%20{params.arrival_airport}"
+                )
+        return flights
     except Exception as e:
         print(f"Exception in flights_finder: {str(e)}")
         return str(e)
